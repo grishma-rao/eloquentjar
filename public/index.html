@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      background: #fff;
+      font-family: monospace;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .title {
+      color: #333;
+      white-space: pre;
+      line-height: 1.2;
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 12px;
+    }
+
+    .jar {
+      width: 800px;
+      margin: 40px auto;
+      position: relative;
+    }
+
+    .jar-ascii {
+      color: #333;
+      white-space: pre;
+      line-height: 1;
+      text-align: center;
+      position: relative;
+      font-size: 12px;
+    }
+
+    .jar-contents {
+      position: absolute;
+      top: 200px;
+      left: 200px;
+      right: 200px;
+      bottom: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .text-item {
+      margin: 10px;
+      padding: 10px;
+      background: #fff;
+      position: relative;
+      max-width: 100%;
+    }
+
+    .text-item.typing::after {
+      content: '|';
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Styles for flying letters */
+    .flying-letter {
+      position: absolute;
+      display: inline-block;
+      font-family: monospace;
+      pointer-events: none;
+      z-index: 10;
+      transition: all linear;
+    }
+
+    /* Styles for bubbling letters */
+    .bubbling-letter {
+      position: relative;
+      display: inline-block;
+      font-family: monospace;
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .bubbling-letter.visible {
+      visibility: visible;
+      animation: bubble-in 2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+
+    /* Space character style */
+    .space-char {
+      display: inline-block;
+      width: 0.5em;
+    }
+
+    @keyframes bubble-in {
+      0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.5);
+      }
+      60% {
+        opacity: 0.7;
+        transform: translateY(-10px) scale(1.1);
+      }
+      80% {
+        opacity: 0.9;
+        transform: translateY(-5px) scale(1.05);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      font-family: monospace;
+      margin: 10px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #333;
+      color: white;
+      border: none;
+      font-family: monospace;
+      cursor: pointer;
+    }
+    
+    #error-message {
+      color: red;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+
+    /* Add this to your existing styles */
+    .instruction {
+      text-align: center;
+      margin-bottom: 15px;
+      font-family: monospace;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">___________.__                                                         ____.             
+\_   _____/|  |   ____   ________ __   ____   ____   ____  ____       |    |____ _______ 
+ |    __)_ |  |  /  _ \ / ____/  |  \_/ __ \ /    \_/ ___\/ __ \      |    \__  \\_  __ \
+ |        \|  |_(  <_> < <_|  |  |  /\  ___/|   |  \  \__\  ___/  /\__|    |/ __ \|  | \/
+/_______  /|____/\____/ \__   |____/  \___  >___|  /\___  >___  > \________(____  /__|   
+        \/                 |__|           \/     \/     \/    \/                \/       </div>
+
+    <p class="instruction">Place your words inside this jar so that they may grow more eloquent over time</p>
+    <textarea id="input" rows="4" placeholder="Write something..."></textarea>
+    <button onclick="addText()">Add to Jar</button>
+    <div id="error-message"></div>
+    
+    <div class="jar">
+      <div class="jar-ascii">                                   ..::::::..................:.:::::...                                  
+                             .:-:.                                     ..:-:.                            
+                           .... .-**-:.                     ..:-++=:       .:.:                          
+                           :::.. .-=++=-:.               .:-=+=---:.   :-::-=-:                          
+                           ::--=++===-:::..                  ..:::--======-==-:.                         
+                           .:--:.....  ..... .. .  .. ........ .        .:-=---=.                        
+                          ::--=-:..                                     ..-+**=+.                        
+                         .==+++-:::.... .:....:....  . . .       ..:-+***+===-:                          
+                           :---====+***+++===--=--==++++++++==-:::::....::==-::                          
+                          ::-:---:..   .                        ...   ..:=+===::                         
+                          +*#++=:.                       ...:::....   ...:=+*#%*                         
+                           ::-+#%#+=-.                     .       .-=+***+=---                          
+                            .:--:.      .......:::::::..........       ..--=:-.                          
+                          ...--.     .....                    .......    .:--:..                         
+                        ....--..                                           ..-:...                       
+                       ...==:..                                             ::::-::.                     
+                      ::::...                                                  ::.:-.                    
+                     .:::---                                                    .:--:                    
+                     ::::-.:                                                     -:+::                   
+                     :::::.=.                                                     .=-:                   
+                     :::::.:--.                                                   .-=:                   
+                     :::::::+  -#.                                                .=-.                   
+                     :::::...... -                                                :*:.                   
+                     ::.:::.......                                               .:*:.                   
+                     .:::-:::.::.                                                .-*::                   
+                     .:::-::::::.                                               ..-+-.                   
+                     .:::--:::--.                                               : -+-.                   
+                     :::---::---.                                               : -+-.                   
+                     :::-=-:----.                                               : -+=.                   
+                     .::-=--::-:.                                               -.-+=.                   
+                     .::==-:::-:.                                               -.-*=.                   
+                     .::-=--:--:.                                               ::=*-.                   
+                     .::-==-:--:.                                              .:-=+=.                   
+                     :::-==::--:.                                              ..:-*-.                   
+                     :::-=+-::-:-                                              ..:-*-.                   
+                     :::--=-::-::                                              ..:-*-.                   
+                     :-:--=-::-::                                               .:=*-.                   
+                     :-:--=:::-::                                              ..:=*-.                   
+                     :-:--=:::::::                                              ...=*-.                   
+                     :-:--=::::.=                                               :.=*-.                   
+                     :---==:::.--                                               :.=*-.                   
+                     ::-==-::..-:                                               :.-+-.                   
+                     ::--=:....=.                                               -.-+::                   
+                     ::---:.:-=*.                                              .-.-+-.                   
+                     ::---:::=+=                                                -.-+-:                   
+                     ::---::..:.                                                :.-+-:                   
+                     :::-=::.                 ...   .....:.....                 ..:==:                   
+                     .::-=:.-         .:----:...                ..:--:.         .::-+:                   
+                     ..:-=-..=  ...=-:....  .                   ...   .:--..    .::=+=.                  
+                      ...-=:.::==--=-:.  ..                         ... ...-:...-.=*-+                   
+                      ..:--*=-==--*-==:...:::..............................-:: .:+*-=:                   
+                       ...:#@@%*===-+%-.  .:--:::::.....    .....     ..=+.=-==%@*==.                    
+                         --*@@%%%@@#**%@%*=:..  ..   ......  ..     .-*%****@@@@=*+                      
+                          .=%@%%#**#%@@%###%%@@@@%#*=-:...  ....:=*%@%##%@@@%##*+.                       
+                            -*%%%%#%%#%#****#####%%%@@@@@%@%%@@@%%%%%@@%####%%+                          
+                              .#%+*#%#**#%##****++**#%%###*#######%#%#@%*+*#=                            
+                                 .**++=-=:-=+*##%%%%%%%%###+=-::..:=---=+-                               
+                                      .:-+-:.......................-:.                                   </div>
+      
+      <div class="jar-contents" id="contents">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Add this at the very beginning of the script section
+    const bubbleSound = new Audio('/sounds/bubble.mp3');
+    
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Helper function to shuffle array (Fisher-Yates algorithm)
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Break text into word fragments for more natural grouping
+    function createTextFragments(text) {
+      // Split into words first
+      const words = text.split(' ');
+      const fragments = [];
+      
+      // For each word, decide if it should be broken into smaller fragments
+      words.forEach(word => {
+        if (word.length <= 3 || Math.random() < 0.4) {
+          // Keep short words together or randomly keep some words whole
+          fragments.push(word);
+        } else {
+          // Break longer words into 2-3 character fragments
+          const fragmentSize = Math.floor(Math.random() * 2) + 2; // 2-3 characters
+          for (let i = 0; i < word.length; i += fragmentSize) {
+            fragments.push(word.substring(i, Math.min(i + fragmentSize, word.length)));
+          }
+        }
+      });
+      
+      return fragments;
+    }
+
+    async function makeMoreEloquent(text, stage, retryCount = 0) {
+      try {
+        console.log(`Sending text to transform (stage ${stage}):`, text);
+        const response = await fetch('/transform', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ text, stage })
+        });
+
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+          if ((response.status === 429 || response.status === 500) && retryCount < 3) {
+            console.log(`Retrying after error (attempt ${retryCount + 1})...`);
+            const waitTime = (retryCount + 1) * 3000;
+            await sleep(waitTime);
+            return makeMoreEloquent(text, stage, retryCount + 1);
+          }
+          const errorText = await response.text();
+          console.error('Error response:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Received data:', data);
+        
+        if (data.error) throw new Error(data.error);
+        if (!data.text) throw new Error('No text in response');
+        
+        return data.text;
+      } catch (error) {
+        console.error('makeMoreEloquent error:', error);
+        document.getElementById('error-message').textContent = `Error: ${error.message}`;
+        
+        if (error.message.includes('Overloaded') && retryCount < 3) {
+          console.log(`Retrying after overload (attempt ${retryCount + 1})...`);
+          const waitTime = (retryCount + 1) * 3000;
+          await sleep(waitTime);
+          return makeMoreEloquent(text, stage, retryCount + 1);
+        }
+        throw error;
+      }
+    }
+
+    // Function for flying letters animation (unchanged)
+    async function flyLettersAway(element) {
+      const text = element.textContent;
+      const rect = element.getBoundingClientRect();
+      const container = document.querySelector('.jar');
+      const containerRect = container.getBoundingClientRect();
+      
+      // Clear the element text
+      element.textContent = '';
+      
+      // Calculate a more accurate character width
+      const charWidth = 8; // Approximate width of monospace character in pixels
+      
+      // Keep track of the x-position
+      let posX = 0;
+      
+      // Create array of indices for non-space characters
+      const indices = [];
+      for (let i = 0; i < text.length; i++) {
+        if (text[i] !== ' ') {
+          indices.push(i);
+        }
+      }
+      
+      // Shuffle indices for random animation order
+      shuffleArray(indices);
+      
+      // Create flying letters
+      for (const i of indices) {
+        const letterSpan = document.createElement('span');
+        letterSpan.className = 'flying-letter';
+        letterSpan.textContent = text[i];
+        
+        // Calculate the position of this letter in the original text
+        const letterPosX = Array.from(text.slice(0, i)).reduce((width, char) => {
+          return width + (char === ' ' ? charWidth : charWidth);
+        }, 0);
+        
+        // Position at starting position (relative to the original element)
+        letterSpan.style.left = `${rect.left + letterPosX - containerRect.left}px`;
+        letterSpan.style.top = `${rect.top - containerRect.top}px`;
+        
+        container.appendChild(letterSpan);
+        
+        // Random vertical direction (mostly upward)
+        const direction = Math.random() > 0.3 ? -1 : 1;
+        
+        // Random horizontal offset
+        const horizontalOffset = Math.random() * 200 - 100; // -100px to +100px
+        
+        // Random distance
+        const distance = 70 + Math.random() * 250;
+        
+        // Random duration
+        const duration = 2.5 + Math.random() * 2.5; // 2.5-5 seconds
+        
+        // Set transition duration
+        letterSpan.style.transition = `all ${duration}s ease-out`;
+        
+        // Small delay for staggered effect
+        await sleep(50 + Math.random() * 100); // 50-150ms delay
+        
+        // Apply transformation
+        requestAnimationFrame(() => {
+          letterSpan.style.transform = `translate(${horizontalOffset}px, ${direction * distance}px) rotate(${Math.random() * 720 - 360}deg)`;
+          letterSpan.style.opacity = '0';
+        });
+        
+        // Remove element after animation completes
+        setTimeout(() => {
+          letterSpan.remove();
+        }, duration * 1000 + 100);
+      }
+      
+      // Wait for the longest possible animation to complete before continuing
+      await sleep(5500); // 5.5 seconds
+    }
+
+    // Faster bubbling in animation
+    async function bubbleInText(element, text) {
+      // Clear element first
+      element.innerHTML = '';
+      
+      // Create a container for the entire text (to maintain proper line wrapping)
+      const textContainer = document.createElement('div');
+      textContainer.style.width = '100%';
+      element.appendChild(textContainer);
+      
+      // Process the text into fragments
+      const processedText = text.replace(/\s+/g, ' ').trim();
+      
+      // Create word fragments
+      const fragments = createTextFragments(processedText);
+      
+      // Create arrays to track character spans and their positions
+      const charSpans = [];
+      let currentOffset = 0;
+      
+      // First, create all spans but keep them invisible
+      fragments.forEach((fragment, fragIndex) => {
+        // Add a space before each fragment (except the first one)
+        if (fragIndex > 0) {
+          const spaceSpan = document.createElement('span');
+          spaceSpan.className = 'space-char';
+          spaceSpan.innerHTML = '&nbsp;';
+          textContainer.appendChild(spaceSpan);
+          currentOffset++;
+        }
+        
+        // Add each character in the fragment
+        for (let i = 0; i < fragment.length; i++) {
+          const span = document.createElement('span');
+          span.className = 'bubbling-letter';
+          span.textContent = fragment.charAt(i);
+          
+          textContainer.appendChild(span);
+          charSpans.push({
+            span,
+            fragment: fragIndex,
+            charIndex: i,
+            absoluteIndex: currentOffset
+          });
+          
+          currentOffset++;
+        }
+      });
+      
+      // Shuffle the array to animate characters in random order
+      shuffleArray(charSpans);
+      
+      // Number of characters to reveal in each batch
+      const totalChars = charSpans.length;
+      const numBatches = 8; // Reduced from 15 for faster revealing
+      const batchSize = Math.ceil(totalChars / numBatches);
+      
+      // Animate in batches with shorter pauses between
+      for (let batch = 0; batch < numBatches; batch++) {
+        // Calculate which characters to show in this batch
+        const startIdx = batch * batchSize;
+        const endIdx = Math.min((batch + 1) * batchSize, totalChars);
+        
+        // Shorter pause between batches (0.8-2 seconds)
+        if (batch > 0) {
+          await sleep(800 + Math.random() * 1200);
+        }
+        
+        // Animate this batch
+        for (let i = startIdx; i < endIdx; i++) {
+          if (i >= charSpans.length) break;
+          
+          const charData = charSpans[i];
+          const span = charData.span;
+          
+          // Add the visible class to trigger animation
+          span.classList.add('visible');
+          
+          // Shorter delay between characters in same batch
+          await sleep(50 + Math.random() * 100); // 50-150ms
+        }
+      }
+      
+      // Make sure all characters are visible at the end
+      charSpans.forEach(charData => {
+        if (!charData.span.classList.contains('visible')) {
+          charData.span.classList.add('visible');
+        }
+      });
+      
+      // Shorter wait at the end
+      await sleep(1500); // 1.5 seconds
+    }
+
+    async function typeText(element, text) {
+      element.classList.add('typing');
+      let index = 0;
+      element.textContent = '';
+      
+      return new Promise(resolve => {
+        const interval = setInterval(() => {
+          if (index < text.length) {
+            element.textContent += text[index];
+            index++;
+          } else {
+            clearInterval(interval);
+            element.classList.remove('typing');
+            resolve();
+          }
+        }, 30);
+      });
+    }
+
+    // Global variables to track current transformation process
+    let currentTransformationActive = false;
+    let stopCurrentTransformation = false;
+
+    async function transformText(element, stage) {
+      try {
+        // Play the bubble sound when transformation starts (no delay)
+        bubbleSound.play().catch(e => console.log('Could not play sound:', e));
+        
+        const oldText = element.textContent;
+        const newText = await makeMoreEloquent(oldText, stage);
+        
+        // If told to stop, exit early
+        if (stopCurrentTransformation) return;
+        
+        element.classList.add('transforming');
+        
+        // Fly the letters away
+        await flyLettersAway(element);
+        
+        // If told to stop during animation, exit
+        if (stopCurrentTransformation) return;
+        
+        // Bubble in the new text instead of typing it
+        await bubbleInText(element, newText);
+      } catch (error) {
+        console.error('Error transforming text:', error);
+        // Clear error after 5 seconds
+        setTimeout(() => {
+          document.getElementById('error-message').textContent = '';
+        }, 5000);
+      } finally {
+        element.classList.remove('transforming');
+      }
+    }
+
+    function addText() {
+      const input = document.getElementById('input');
+      const contents = document.getElementById('contents');
+      
+      if (input.value.trim()) {
+        // Signal any active transformation to stop
+        stopCurrentTransformation = true;
+        
+        // Clear the contents
+        contents.innerHTML = '';
+        
+        const div = document.createElement('div');
+        div.className = 'text-item';
+        contents.appendChild(div);
+        
+        // Use an async function to handle the asynchronous operations
+        (async function() {
+          await typeText(div, input.value);
+          input.value = '';
+
+          let transformCount = 0;
+          const maxTransforms = 3;
+          
+          // Set the transformation as active and reset the stop flag
+          currentTransformationActive = true;
+          stopCurrentTransformation = false;
+          
+          // Define the recursive function
+          async function processTransformation() {
+            if (transformCount >= maxTransforms || stopCurrentTransformation) {
+              currentTransformationActive = false;
+              return;
+            }
+            
+            transformCount++;
+            await transformText(div, transformCount);
+            
+            // Check if we should continue
+            if (stopCurrentTransformation) {
+              currentTransformationActive = false;
+              return;
+            }
+            
+            await sleep(15000); // Pause between transformations
+            
+            // Check again if we should continue
+            if (stopCurrentTransformation) {
+              currentTransformationActive = false;
+              return;
+            }
+            
+            // Schedule next transformation
+            setTimeout(() => {
+              processTransformation();
+            }, 55000);
+          }
+
+          // Start the transformation sequence
+          setTimeout(() => {
+            processTransformation();
+          }, 5000);
+        })(); // Immediately invoke the async function
+      }
+    }
+  </script>
+</body>
+</html>
